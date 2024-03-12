@@ -76,6 +76,7 @@ public class SwingExample extends JFrame {
     System.out.println("running in event dispatch thread:"+
       SwingUtilities.isEventDispatchThread());
     // Simulate doing something useful.
+
     for(int i=0; i<=10; i++) {
       // Bad practice
       countLabel1.setText(Integer.toString(i));

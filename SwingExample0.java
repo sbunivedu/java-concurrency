@@ -3,22 +3,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
+ 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
  
-public class SwingExample4 extends JFrame {
+public class SwingExample0 extends JFrame {
   private JLabel countLabel1 = new JLabel("0");
   private JLabel statusLabel = new JLabel("Task not completed.");
   private JButton startButton = new JButton("Start");
   private JButton helloButton = new JButton("Say Hello");
  
-  public SwingExample4(String title) {
+  public SwingExample0(String title) {
     // create and show UI
     super(title);
 
@@ -70,55 +67,30 @@ public class SwingExample4 extends JFrame {
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
-        new SwingExample4("Swing Demo");
+        new SwingExample0("Swing Demo");
       }
     });
   }
  
   private void start() {
-    SwingWorker<Boolean, Integer> worker = new SwingWorker<Boolean, Integer>() {
-      @Override
-      protected Boolean doInBackground() throws Exception {
+    Thread worker = new Thread() {
+      public void run() {
+        System.out.println("running in event dispatch thread:"+
+          SwingUtilities.isEventDispatchThread());
         // Simulate doing something useful.
-        for (int i = 0; i <= 10; i++) {
-          Thread.sleep(1000);
+        for(int i=0; i<=10; i++) {
+          // Bad practice
+          countLabel1.setText(Integer.toString(i));
 
-          // The type we pass to publish() is determined
-          // by the second template parameter.
-          publish(i);
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {}
         }
- 
-        // Here we can return some object of whatever type
-        // we specified for the first template parameter.
-        // (in this case we're auto-boxing 'true').
-        return true;
-      }
- 
-      // Can safely update the GUI from this method.
-      protected void done() {
-        boolean status;
-        try {
-          // Retrieve the return value of doInBackground.
-          status = get();
-          statusLabel.setText("Completed with status: " + status);
-        } catch (InterruptedException e) {
-          // This is thrown if the thread's interrupted.
-        } catch (ExecutionException e) {
-          // This is thrown if we throw an exception
-          // from doInBackground.
-        }
-      }
- 
-      @Override
-      // Can safely update the GUI from this method.
-      // It is invoked in the event dispatch thread.
-      protected void process(List<Integer> chunks) {
-        // Here we receive the values that we publish().
-        // They may come grouped in chunks.
-        int mostRecentValue = chunks.get(chunks.size()-1);
-        countLabel1.setText(Integer.toString(mostRecentValue));
+
+        // Bad practice
+        statusLabel.setText("Completed.");
       }
     };
-    worker.execute();
+    worker.start();
   }
 }
